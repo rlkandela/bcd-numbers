@@ -80,7 +80,7 @@ impl FromBCD for u16 {
         let mut result = 0;
         let mut digit_base = 1;
         while value != 0 {
-            let lower = (self & 0xff) as u8;
+            let lower = (value & 0xff) as u8;
             let lower = lower.from_bcd() as Self;
             result += lower*digit_base;
             value >>= 8;
@@ -113,7 +113,7 @@ impl FromBCD for u32 {
         let mut result = 0;
         let mut digit_base = 1;
         while value != 0 {
-            let lower = (self & 0xff) as u8;
+            let lower = (value & 0xff) as u8;
             let lower = lower.from_bcd() as Self;
             result += lower*digit_base;
             value >>= 8;
@@ -146,7 +146,7 @@ impl FromBCD for u64 {
         let mut result = 0;
         let mut digit_base = 1;
         while value != 0 {
-            let lower = (self & 0xff) as u8;
+            let lower = (value & 0xff) as u8;
             let lower = lower.from_bcd() as Self;
             result += lower*digit_base;
             value >>= 8;
@@ -179,7 +179,7 @@ impl FromBCD for u128 {
         let mut result = 0;
         let mut digit_base = 1;
         while value != 0 {
-            let lower = (self & 0xff) as u8;
+            let lower = (value & 0xff) as u8;
             let lower = lower.from_bcd() as Self;
             result += lower*digit_base;
             value >>= 8;
