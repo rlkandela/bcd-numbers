@@ -5,6 +5,11 @@ pub struct BCD<const BYTES: usize> {
     data: [u8;BYTES]
 }
 
+#[derive(Debug)]
+pub struct DynBCD {
+    data: Vec<u8>
+}
+
 pub trait Convertible<T> {
     fn convert(self) -> T;
 }
@@ -33,6 +38,37 @@ impl<const BYTES: usize> IntoIterator for BCD<BYTES> {
 
     fn into_iter(self) -> Self::IntoIter {
         self.data.into_iter()
+    }
+}
+
+impl IntoIterator for DynBCD {
+    type Item = u8;
+
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.data.into_iter()
+    }
+}
+
+impl<const BYTES: usize> From<DynBCD> for BCD<BYTES> {
+    fn from(value: DynBCD) -> Self {
+        let mut new_data: Vec<u8> = value.data.into_iter().rev().take(BYTES).collect();
+        while new_data.len() < BYTES {
+            new_data.push(0);
+        }
+        let new_data: Vec<u8> = new_data.into_iter().rev().collect();
+        Self {
+            data: new_data.try_into().unwrap()
+        }
+    }
+}
+
+impl<const BYTES: usize> From<BCD<BYTES>> for DynBCD {
+    fn from(value: BCD<BYTES>) -> Self {
+        Self {
+            data: Vec::from(value.data)
+        }
     }
 }
 
@@ -117,7 +153,7 @@ impl TryFrom<u16> for BCD<2> {
 impl From<BCD<2>> for u16 {
     fn from(value: BCD<2>) -> Self {
         value.data.into_iter()
-            .fold(0, |acc, x| acc*100+(x as Self))
+            .fold(0, |acc, x| acc*100 + (Into::<u8>::into(BCD::from([x])) as Self))
     }
 }
 
@@ -151,7 +187,7 @@ impl TryFrom<u32> for BCD<4> {
 impl From<BCD<4>> for u32 {
     fn from(value: BCD<4>) -> Self {
         value.data.into_iter()
-            .fold(0, |acc, x| acc*100 + (x as Self))
+            .fold(0, |acc, x| acc*100 + (Into::<u8>::into(BCD::from([x])) as Self))
     }
 }
 
@@ -185,7 +221,7 @@ impl TryFrom<u64> for BCD<8> {
 impl From<BCD<8>> for u64 {
     fn from(value: BCD<8>) -> Self {
         value.data.into_iter()
-            .fold(0, |acc, x| acc*100 + (x as Self))
+            .fold(0, |acc, x| acc*100 + (Into::<u8>::into(BCD::from([x])) as Self))
     }
 }
 
@@ -219,6 +255,141 @@ impl TryFrom<u128> for BCD<16> {
 impl From<BCD<16>> for u128 {
     fn from(value: BCD<16>) -> Self {
         value.data.into_iter()
-            .fold(0, |acc, x| acc*100 + (x as Self))
+            .fold(0, |acc, x| acc*100 + (Into::<u8>::into(BCD::from([x])) as Self))
+    }
+}
+
+impl TryFrom<u8> for DynBCD {
+    type Error = BCDConversionError;
+
+    fn try_from(value: u8) -> Result<DynBCD, Self::Error> {
+        let n_bytes = value.to_ne_bytes().into_iter().count();
+        let max_val = vec![();n_bytes].into_iter().fold(0, |acc, _| acc*100+99);
+        if value > max_val { return Err(Self::Error::new_with_template_description("u8", value, max_val)); }
+        let low = value % 10;
+        let high = value / 10;
+        Ok(Self {
+            data: vec![high<<4|low]
+        })
+    }
+}
+
+impl From<DynBCD> for u8 {
+    fn from(value: DynBCD) -> Self {
+        let value = value.data.into_iter().rev().next().unwrap();
+        let high = (value & 0xf0) >> 4;
+        let low = value & 0x0f;
+        high*10+low
+    }
+}
+
+impl TryFrom<u16> for DynBCD {
+    type Error = BCDConversionError;
+    fn try_from(value: u16) -> Result<DynBCD, Self::Error> {
+        let n_bytes = value.to_ne_bytes().into_iter().count();
+        let max_val = vec![();n_bytes].into_iter().fold(0, |acc, _| acc*100+99);
+        if value > max_val { return Err(Self::Error::new_with_template_description("u16", value, max_val)); }
+        let mut value = value;
+        let mut buffer: Vec<BCD<1>> = vec![];
+        while value != 0 {
+            let current = (value % 100) as u8;
+            value /= 100;
+            buffer.push(current.try_into().unwrap());
+        }
+        let buffer = buffer.into_iter().rev().map(|item| item.data).flatten().collect();
+        Ok(Self {
+            data: buffer
+        })
+    }
+}
+
+impl From<DynBCD> for u16 {
+    fn from(value: DynBCD) -> Self {
+        value.data.into_iter()
+            .fold(0, |acc, x| acc*100 + (Into::<u8>::into(BCD::from([x])) as Self))
+    }
+}
+
+impl TryFrom<u32> for DynBCD {
+    type Error = BCDConversionError;
+
+    fn try_from(value: u32) -> Result<DynBCD, Self::Error> {
+        let n_bytes = value.to_ne_bytes().into_iter().count();
+        let max_val = vec![();n_bytes].into_iter().fold(0, |acc, _| acc*100+99);
+        if value > max_val { return Err(Self::Error::new_with_template_description("u32", value, max_val)); }
+        let mut value = value;
+        let mut buffer: Vec<BCD<1>> = vec![];
+        while value != 0 {
+            let current = (value % 100) as u8;
+            value /= 100;
+            buffer.push(current.try_into().unwrap());
+        }
+        let buffer = buffer.into_iter().rev().map(|item| item.data).flatten().collect();
+        Ok(Self {
+            data: buffer
+        })
+    }
+}
+
+impl From<DynBCD> for u32 {
+    fn from(value: DynBCD) -> Self {
+        value.data.into_iter()
+            .fold(0, |acc, x| acc*100 + (Into::<u8>::into(BCD::from([x])) as Self))
+    }
+}
+
+impl TryFrom<u64> for DynBCD {
+    type Error = BCDConversionError;
+
+    fn try_from(value: u64) -> Result<DynBCD, Self::Error> {
+        let n_bytes = value.to_ne_bytes().into_iter().count();
+        let max_val = vec![();n_bytes].into_iter().fold(0, |acc, _| acc*100+99);
+        if value > max_val { return Err(Self::Error::new_with_template_description("u64", value, max_val)); }
+        let mut value = value;
+        let mut buffer: Vec<BCD<1>> = vec![];
+        while value != 0 {
+            let current = (value % 100) as u8;
+            value /= 100;
+            buffer.push(current.try_into().unwrap());
+        }
+        let buffer = buffer.into_iter().rev().map(|item| item.data).flatten().collect();
+        Ok(Self {
+            data: buffer
+        })
+    }
+}
+
+impl From<DynBCD> for u64 {
+    fn from(value: DynBCD) -> Self {
+        value.data.into_iter()
+            .fold(0, |acc, x| acc*100 + (Into::<u8>::into(BCD::from([x])) as Self))
+    }
+}
+
+impl TryFrom<u128> for DynBCD {
+    type Error = BCDConversionError;
+
+    fn try_from(value: u128) -> Result<DynBCD, Self::Error> {
+        let n_bytes = value.to_ne_bytes().into_iter().count();
+        let max_val = vec![();n_bytes].into_iter().fold(0, |acc, _| acc*100+99);
+        if value > max_val { return Err(Self::Error::new_with_template_description("u128", value, max_val)); }
+        let mut value = value;
+        let mut buffer: Vec<BCD<1>> = vec![];
+        while value != 0 {
+            let current = (value % 100) as u8;
+            value /= 100;
+            buffer.push(current.try_into().unwrap());
+        }
+        let buffer = buffer.into_iter().rev().map(|item| item.data).flatten().collect();
+        Ok(Self {
+            data: buffer
+        })
+    }
+}
+
+impl From<DynBCD> for u128 {
+    fn from(value: DynBCD) -> Self {
+        value.data.into_iter()
+            .fold(0, |acc, x| acc*100 + (Into::<u8>::into(BCD::from([x])) as Self))
     }
 }
