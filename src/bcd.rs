@@ -1,11 +1,12 @@
 use crate::BCDConversionError;
+use std::fmt::{Debug, Display};
 
-#[derive(Debug)]
+#[derive(Clone, Copy)]
 pub struct BCD<const BYTES: usize> {
     data: [u8;BYTES]
 }
 
-#[derive(Debug)]
+#[derive(Clone)]
 pub struct DynBCD {
     data: Vec<u8>
 }
@@ -28,6 +29,36 @@ impl<const BYTES_OG: usize, const BYTES_DST: usize> Convertible<BCD<BYTES_DST>> 
                 data: new_data.try_into().unwrap()
             }
         }
+    }
+}
+
+impl<const BYTES: usize> Debug for BCD<BYTES> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("BCD")
+            .field("data", &self.data)
+            .field("computed_value", &Into::<u128>::into(self.clone().convert()))
+            .finish()
+    }
+}
+
+impl<const BYTES: usize> Display for BCD<BYTES> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "BCD<{}> {{ \"computed_value\": {} }}", BYTES, Into::<u128>::into(self.clone().convert()))
+    }
+}
+
+impl Debug for DynBCD {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("DynBCD")
+            .field("data", &self.data)
+            .field("computed_value", &Into::<u128>::into(self.clone()))
+            .finish()
+    }
+}
+
+impl Display for DynBCD {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "DynBCD {{ \"computed_value\": {} }}", Into::<u128>::into(self.clone()))
     }
 }
 
