@@ -1,0 +1,33 @@
+#[derive(Debug)]
+pub struct BCDConversionError {
+    description: String
+}
+
+impl BCDConversionError {
+    pub fn new(description: String) -> Self {
+        Self { description }
+    }
+
+    pub fn new_boxed(description: String) -> Box<Self> {
+        Box::new(Self::new(description))
+    }
+
+    pub fn new_with_template_description<T>(t: &str, v: T, max: T) -> Self 
+        where T: std::fmt::Display
+    {
+        Self::new(format!("Error on {} to bcd, passed in value ({}) exceeds maximum of {}", t, v,max))
+    }
+
+    pub fn description<'self_lt>(&'self_lt self) -> &'self_lt str {
+        &self.description
+    }
+}
+
+impl std::fmt::Display for BCDConversionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+impl std::error::Error for BCDConversionError {}
+
