@@ -4,4 +4,4 @@ mod bcd;
 
 pub use error::BCDConversionError;
 //pub use bcd::{FromBCD, ToBCD};
-pub use bcd::{BCD, Convertible};
+pub use bcd::{BCD, Convertible, DynBCD};
