@@ -26,6 +26,16 @@ impl<const BYTES_OG: usize, const BYTES_DST: usize> Convertible<BCD<BYTES_DST>> 
     }
 }
 
+impl<const BYTES: usize> IntoIterator for BCD<BYTES> {
+    type Item = u8;
+
+    type IntoIter = std::array::IntoIter<Self::Item,BYTES>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.data.into_iter()
+    }
+}
+
 impl<const BYTES_OG: usize, const BYTES_DST: usize> From<[u8;BYTES_OG]> for BCD<BYTES_DST> {
     fn from(data: [u8;BYTES_OG]) -> Self {
         if BYTES_OG >= BYTES_DST {
