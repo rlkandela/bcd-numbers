@@ -167,7 +167,7 @@ impl TryFrom<u8> for BCD<1> {
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
         let n_bytes = value.to_ne_bytes().into_iter().count();
-        let max_val = vec![();n_bytes].into_iter().fold(0, |acc, _| acc*100+99);
+        let max_val = (0..n_bytes).into_iter().fold(0, |acc, _| acc*100+99);
         if value > max_val { return Err(Self::Error::new_with_template_description("u8", value, max_val)); }
         let high = value/10;
         let low = value%10;
@@ -188,7 +188,7 @@ impl TryFrom<u16> for BCD<2> {
 
     fn try_from(value: u16) -> Result<Self, Self::Error> {
         let n_bytes = value.to_ne_bytes().into_iter().count();
-        let max_val = vec![();n_bytes].into_iter().fold(0, |acc, _| acc*100+99);
+        let max_val = (0..n_bytes).into_iter().fold(0, |acc, _| acc*100+99);
         if value > max_val { return Err(Self::Error::new_with_template_description("u16", value, max_val)); }
         let mut value = value;
         let mut buffer: Vec<BCD<1>> = vec![];
@@ -222,7 +222,7 @@ impl TryFrom<u32> for BCD<4> {
 
     fn try_from(value: u32) -> Result<Self, Self::Error> {
         let n_bytes = value.to_ne_bytes().into_iter().count();
-        let max_val = vec![();n_bytes].into_iter().fold(0, |acc, _| acc*100+99);
+        let max_val = (0..n_bytes).into_iter().fold(0, |acc, _| acc*100+99);
         if value > max_val { return Err(Self::Error::new_with_template_description("u32", value, max_val)); }
         let mut value = value;
         let mut buffer: Vec<BCD<1>> = vec![];
@@ -234,7 +234,7 @@ impl TryFrom<u32> for BCD<4> {
         while buffer.len() < n_bytes {
             buffer.push(BCD{ data: [0] });
         }
-        let buffer: [u8; 2] = buffer.into_iter()
+        let buffer: [u8; 4] = buffer.into_iter()
             .rev()
             .map(|item| item.data)
             .flatten()
@@ -256,7 +256,7 @@ impl TryFrom<u64> for BCD<8> {
 
     fn try_from(value: u64) -> Result<Self, Self::Error> {
         let n_bytes = value.to_ne_bytes().into_iter().count();
-        let max_val = vec![();n_bytes].into_iter().fold(0, |acc, _| acc*100+99);
+        let max_val = (0..n_bytes).into_iter().fold(0, |acc, _| acc*100+99);
         if value > max_val { return Err(Self::Error::new_with_template_description("u32", value, max_val)); }
         let mut value = value;
         let mut buffer: Vec<BCD<1>> = vec![];
@@ -268,7 +268,7 @@ impl TryFrom<u64> for BCD<8> {
         while buffer.len() < n_bytes {
             buffer.push(BCD{ data: [0] });
         }
-        let buffer: [u8; 2] = buffer.into_iter()
+        let buffer: [u8; 8] = buffer.into_iter()
             .rev()
             .map(|item| item.data)
             .flatten()
@@ -290,7 +290,7 @@ impl TryFrom<u128> for BCD<16> {
 
     fn try_from(value: u128) -> Result<Self, Self::Error> {
         let n_bytes = value.to_ne_bytes().into_iter().count();
-        let max_val = vec![();n_bytes].into_iter().fold(0, |acc, _| acc*100+99);
+        let max_val = (0..n_bytes).into_iter().fold(0, |acc, _| acc*100+99);
         if value > max_val { return Err(Self::Error::new_with_template_description("u32", value, max_val)); }
         let mut value = value;
         let mut buffer: Vec<BCD<1>> = vec![];
@@ -302,7 +302,7 @@ impl TryFrom<u128> for BCD<16> {
         while buffer.len() < n_bytes {
             buffer.push(BCD{ data: [0] });
         }
-        let buffer: [u8; 2] = buffer.into_iter()
+        let buffer: [u8; 16] = buffer.into_iter()
             .rev()
             .map(|item| item.data)
             .flatten()
@@ -324,7 +324,7 @@ impl TryFrom<u8> for DynBCD {
 
     fn try_from(value: u8) -> Result<DynBCD, Self::Error> {
         let n_bytes = value.to_ne_bytes().into_iter().count();
-        let max_val = vec![();n_bytes].into_iter().fold(0, |acc, _| acc*100+99);
+        let max_val = (0..n_bytes).into_iter().fold(0, |acc, _| acc*100+99);
         if value > max_val { return Err(Self::Error::new_with_template_description("u8", value, max_val)); }
         let low = value % 10;
         let high = value / 10;
@@ -347,7 +347,7 @@ impl TryFrom<u16> for DynBCD {
     type Error = BCDConversionError;
     fn try_from(value: u16) -> Result<DynBCD, Self::Error> {
         let n_bytes = value.to_ne_bytes().into_iter().count();
-        let max_val = vec![();n_bytes].into_iter().fold(0, |acc, _| acc*100+99);
+        let max_val = (0..n_bytes).into_iter().fold(0, |acc, _| acc*100+99);
         if value > max_val { return Err(Self::Error::new_with_template_description("u16", value, max_val)); }
         let mut value = value;
         let mut buffer: Vec<BCD<1>> = vec![];
@@ -375,7 +375,7 @@ impl TryFrom<u32> for DynBCD {
 
     fn try_from(value: u32) -> Result<DynBCD, Self::Error> {
         let n_bytes = value.to_ne_bytes().into_iter().count();
-        let max_val = vec![();n_bytes].into_iter().fold(0, |acc, _| acc*100+99);
+        let max_val = (0..n_bytes).into_iter().fold(0, |acc, _| acc*100+99);
         if value > max_val { return Err(Self::Error::new_with_template_description("u32", value, max_val)); }
         let mut value = value;
         let mut buffer: Vec<BCD<1>> = vec![];
@@ -403,7 +403,7 @@ impl TryFrom<u64> for DynBCD {
 
     fn try_from(value: u64) -> Result<DynBCD, Self::Error> {
         let n_bytes = value.to_ne_bytes().into_iter().count();
-        let max_val = vec![();n_bytes].into_iter().fold(0, |acc, _| acc*100+99);
+        let max_val = (0..n_bytes).into_iter().fold(0, |acc, _| acc*100+99);
         if value > max_val { return Err(Self::Error::new_with_template_description("u64", value, max_val)); }
         let mut value = value;
         let mut buffer: Vec<BCD<1>> = vec![];
@@ -431,7 +431,7 @@ impl TryFrom<u128> for DynBCD {
 
     fn try_from(value: u128) -> Result<DynBCD, Self::Error> {
         let n_bytes = value.to_ne_bytes().into_iter().count();
-        let max_val = vec![();n_bytes].into_iter().fold(0, |acc, _| acc*100+99);
+        let max_val = (0..n_bytes).into_iter().fold(0, |acc, _| acc*100+99);
         if value > max_val { return Err(Self::Error::new_with_template_description("u128", value, max_val)); }
         let mut value = value;
         let mut buffer: Vec<BCD<1>> = vec![];
