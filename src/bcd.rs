@@ -103,6 +103,35 @@ impl<const BYTES: usize> From<BCD<BYTES>> for DynBCD {
     }
 }
 
+impl From<&[u8]> for DynBCD {
+    fn from(data: &[u8]) -> Self {
+        Self {
+            data: Vec::from(data)
+        }
+    }
+}
+
+impl<const BYTES: usize> From<&[u8]> for BCD<BYTES> {
+    fn from(value: &[u8]) -> Self {
+        if value.len() >= BYTES {
+            let buffer: Vec<u8> = value.into_iter()
+                .rev().take(BYTES).rev()
+                .map(|item| *item)
+                .collect();
+            Self {
+                data: buffer.try_into().unwrap()
+            }
+        }
+        else {
+            let mut buffer = vec![0;BYTES - value.len()];
+            buffer.extend(value.into_iter().map(|item| *item));
+            Self {
+                data: buffer.try_into().unwrap()
+            }
+        }
+    }
+}
+
 impl<const BYTES_OG: usize, const BYTES_DST: usize> From<[u8;BYTES_OG]> for BCD<BYTES_DST> {
     fn from(data: [u8;BYTES_OG]) -> Self {
         if BYTES_OG >= BYTES_DST {
