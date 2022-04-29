@@ -453,3 +453,16 @@ impl From<DynBCD> for u128 {
             .fold(0, |acc, x| acc*100 + (Into::<u8>::into(BCD::from([x])) as Self))
     }
 }
+
+impl<const BYTES: usize> BCD<BYTES> {
+    pub fn new(value: u128) -> Self {
+        let new_val: BCD<16> = value.try_into().unwrap();
+        new_val.convert()
+    }
+}
+
+impl DynBCD {
+    pub fn new(value: u128) -> Self {
+        value.try_into().unwrap()
+    }
+}
