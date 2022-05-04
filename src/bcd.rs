@@ -82,6 +82,18 @@ impl IntoIterator for DynBCD {
     }
 }
 
+impl<const BYTES: usize> From<BCD<BYTES>> for Vec<u8> {
+    fn from(data: BCD<BYTES>) -> Self {
+        Vec::from(data.data)
+    }
+}
+
+impl From<DynBCD> for Vec<u8> {
+    fn from(data: DynBCD) -> Self {
+        data.data
+    }
+}
+
 impl<const BYTES: usize> From<DynBCD> for BCD<BYTES> {
     fn from(value: DynBCD) -> Self {
         let mut new_data: Vec<u8> = value.data.into_iter().rev().take(BYTES).collect();
@@ -459,10 +471,18 @@ impl<const BYTES: usize> BCD<BYTES> {
         let new_val: BCD<16> = value.try_into().unwrap();
         new_val.convert()
     }
+
+    pub fn get_number(&self) -> u128 {
+        self.clone().convert().into()
+    }
 }
 
 impl DynBCD {
     pub fn new(value: u128) -> Self {
         value.try_into().unwrap()
+    }
+
+    pub fn get_number(&self) -> u128 {
+        self.clone().into()
     }
 }
