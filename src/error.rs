@@ -4,8 +4,8 @@ pub struct BCDConversionError {
 }
 
 impl BCDConversionError {
-    pub fn new(description: String) -> Self {
-        Self { description }
+    pub fn new(description: impl Into<String>) -> Self {
+        Self { description: description.into() }
     }
 
     pub fn new_boxed(description: String) -> Box<Self> {
