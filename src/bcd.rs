@@ -1,12 +1,12 @@
 use crate::BCDConversionError;
 use std::fmt::{Debug, Display};
 
-#[derive(Clone, Copy)]
+#[derive(PartialEq, Clone, Copy)]
 pub struct BCD<const BYTES: usize> {
     data: [u8;BYTES]
 }
 
-#[derive(Clone)]
+#[derive(PartialEq, Clone)]
 pub struct DynBCD {
     data: Vec<u8>
 }
