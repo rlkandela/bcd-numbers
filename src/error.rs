@@ -13,7 +13,7 @@ impl BCDConversionError {
     }
 
     pub fn new_with_template_description<T>(t: &str, v: T, max: T) -> Self 
-        where T: std::fmt::Display
+        where T: core::fmt::Display
     {
         Self::new(format!("Error on {} to bcd, passed in value ({}) exceeds maximum of {}", t, v,max))
     }
@@ -23,8 +23,8 @@ impl BCDConversionError {
     }
 }
 
-impl std::fmt::Display for BCDConversionError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for BCDConversionError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "{:?}", self)
     }
 }

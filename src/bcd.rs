@@ -1,5 +1,5 @@
 use crate::BCDConversionError;
-use std::fmt::{Debug, Display};
+use core::fmt::{Debug, Display};
 
 #[derive(Clone, Copy)]
 pub struct BCD<const BYTES: usize> {
@@ -44,7 +44,7 @@ impl<const BYTES_OG: usize, const BYTES_DST: usize> Convertible<BCD<BYTES_DST>> 
 }
 
 impl<const BYTES: usize> Debug for BCD<BYTES> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("BCD")
             .field("data", &self.data)
             .field("computed_value", &Into::<u128>::into((*self).convert()))
@@ -53,13 +53,13 @@ impl<const BYTES: usize> Debug for BCD<BYTES> {
 }
 
 impl<const BYTES: usize> Display for BCD<BYTES> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "BCD<{}> {{ \"computed_value\": {} }}", BYTES, Into::<u128>::into((*self).convert()))
     }
 }
 
 impl Debug for DynBCD {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("DynBCD")
             .field("data", &self.data)
             .field("computed_value", &Into::<u128>::into(self.clone()))
@@ -68,7 +68,7 @@ impl Debug for DynBCD {
 }
 
 impl Display for DynBCD {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "DynBCD {{ \"computed_value\": {} }}", Into::<u128>::into(self.clone()))
     }
 }
@@ -76,17 +76,18 @@ impl Display for DynBCD {
 impl<const BYTES: usize> IntoIterator for BCD<BYTES> {
     type Item = u8;
 
-    type IntoIter = std::array::IntoIter<Self::Item,BYTES>;
+    type IntoIter = core::array::IntoIter<Self::Item,BYTES>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.data.into_iter()
     }
 }
 
+#[cfg(feature = "alloc")]
 impl IntoIterator for DynBCD {
     type Item = u8;
 
-    type IntoIter = std::vec::IntoIter<Self::Item>;
+    type IntoIter = alloc::vec::IntoIter<Self::Item>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.data.into_iter()
